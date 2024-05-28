@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GPS Data Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #map {
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script>
+    // Replace with your ThingSpeak Channel ID and API Read Key
+    const channelId = '2562375';
+    const readKey = 'OIY311AITHZWKGL1';
+
+    // Initialize the map
+    const map = L.map('map').setView([0, 0], 2);
+
+    // Add a tile layer to the map
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    let marker;
+
+    // Function to fetch data from ThingSpeak
+    async function fetchData() {
+      try {
+        const response = await axios.get(`https://api.thingspeak.com/channels/${channelId}/feeds.json?api_key=${readKey}&results=1`);
+        const feeds = response.data.feeds;
+
+        if (feeds.length > 0) {
+          const latestFeed = feeds[0];
+          const latitude = parseFloat(latestFeed.field1);
+          const longitude = parseFloat(latestFeed.field2);
+
+          if (!isNaN(latitude) && !isNaN(longitude)) {
+            // Set the map view to the latest coordinates
+            map.setView([latitude, longitude], 13);
+
+            // Remove existing marker if it exists
+            if (marker) {
+              map.removeLayer(marker);
+            }
+
+            // Add a marker to the map
+            marker = L.marker([latitude, longitude]).addTo(map)
+              .bindPopup(`Latitude: ${latitude}<br>Longitude: ${longitude}`)
+              .openPopup();
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching data from ThingSpeak:', error);
+      }
+    }
+
+    // Fetch data when the page loads
+    window.onload = fetchData;
+
+    // Fetch data every 30 seconds
+    setInterval(fetchData, 30000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "751586261864",
+    "firebase_url": "https://caricelahyukk-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "caricelahyukk",
+    "storage_bucket": "caricelahyukk.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:751586261864:android:633c1a5ccaff97bca274dd",
+        "android_client_info": {
+          "package_name": "com.example.cari_celah"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWBTenQfMg4fRwufmZw0QiO1ukq4hmWs4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
