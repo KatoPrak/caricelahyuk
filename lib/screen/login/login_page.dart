@@ -2,12 +2,10 @@ import 'package:cari_celah/screen/component/bottom_navigation.dart';
 import 'package:cari_celah/screen/home/dashboard.dart';
 import 'package:cari_celah/screen/login/forgot_password.dart';
 import 'package:cari_celah/screen/login/register_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-void main() {
-  runApp(LoginPage());
-}
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LoginPage extends StatelessWidget {
   @override
@@ -242,7 +240,7 @@ class _LoginFormState extends State<LoginForm> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) =>  RegisterForm ()),
+                              builder: (context) => RegisterForm()),
                         );
                       },
                       child: Text(
@@ -270,14 +268,62 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 
-  void _loginUser() {
-    // Add your login logic here
-    // If login is successful, navigate to the HomePage
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => BottomNavigation()),
-    );
-    print('Login user...');
+  Future<void> _loginUser() async {
+    final emailOrUsername = _emailOrUsernameController.text;
+    final password = _passwordController.text;
+
+    try {
+      // Get user data from Firestore
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email', isEqualTo: emailOrUsername)
+          .limit(1)
+          .get();
+
+      if (userDoc.docs.isEmpty) {
+        // If no user found with email, try username
+        final usernameDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .where('username', isEqualTo: emailOrUsername)
+            .limit(1)
+            .get();
+
+        if (usernameDoc.docs.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('User not found')),
+          );
+          return;
+        } else {
+          final email = usernameDoc.docs.first.data()['email'];
+          // Sign in with email and password
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
+              email: email, password: password);
+        }
+      } else {
+        final email = userDoc.docs.first.data()['email'];
+        // Sign in with email and password
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+            email: email, password: password);
+      }
+
+      // If login is successful, navigate to the HomePage
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => BottomNavigation()),
+      );
+    } on FirebaseAuthException catch (e) {
+      String message;
+      if (e.code == 'user-not-found') {
+        message = 'No user found for that email.';
+      } else if (e.code == 'wrong-password') {
+        message = 'Wrong password provided.';
+      } else {
+        message = 'Error: ${e.message}';
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    }
   }
 
   @override

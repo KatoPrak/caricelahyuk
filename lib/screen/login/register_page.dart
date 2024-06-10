@@ -3,15 +3,32 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
 class FirebaseAuthService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  Future<void> registerUser(String username, String email) async {
+  Future<void> registerUser(String username, String email, String password) async {
     try {
-      await _firestore.collection('users').doc(username).set({
+      // Hash the password before storing it
+      var bytes = utf8.encode(password);
+      var digest = sha1.convert(bytes);
+      var hashedPassword = digest.toString();
+
+      // Create user in Firebase Authentication
+      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      // Store user details in Firestore
+      await _firestore.collection('users').doc(userCredential.user!.uid).set({
         'username': username,
         'email': email,
+        'password': hashedPassword, // Store the hashed password in Firestore
       });
     } catch (e) {
       print('Error adding user: $e');
@@ -20,45 +37,49 @@ class FirebaseAuthService {
   }
 }
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  runApp(RegisterPage());
-}
-
 class User {
   final String username;
   final String email;
+  final String password;
 
-  User({required this.username, required this.email});
+  User({required this.username, required this.email, required this.password});
 }
 
-class RegisterPage extends StatelessWidget {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(AplikasiSaya());
+}
+
+class AplikasiSaya extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final Size screenSize = MediaQuery.of(context).size;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: SingleChildScrollView(
-          child: Container(
-            height: screenSize.height,
-            width: screenSize.width,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('lib/image/bg3.png'),
-                fit: BoxFit.cover,
-              ),
+      home: RegisterForm(),
+    );
+  }
+}
+
+class RegisterForm extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final Size ukuranLayar = MediaQuery.of(context).size;
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Container(
+          height: ukuranLayar.height,
+          width: ukuranLayar.width,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('lib/image/bg3.png'),
+              fit: BoxFit.cover,
             ),
-            child: Center(
-              child: Stack(
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(45.0),
-                    child: RegisterForm(),
-                  ),
-                ],
-              ),
+          ),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(45.0),
+              child: FormulirDaftar(),
             ),
           ),
         ),
@@ -67,18 +88,18 @@ class RegisterPage extends StatelessWidget {
   }
 }
 
-class RegisterForm extends StatefulWidget {
+class FormulirDaftar extends StatefulWidget {
   @override
-  _RegisterFormState createState() => _RegisterFormState();
+  _FormulirDaftarState createState() => _FormulirDaftarState();
 }
 
-class _RegisterFormState extends State<RegisterForm> {
+class _FormulirDaftarState extends State<FormulirDaftar> {
   final FirebaseAuthService _auth = FirebaseAuthService();
   final _formKey = GlobalKey<FormState>();
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _usernameController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
-  TextEditingController _confirmPasswordController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   bool _isPasswordObscure = true;
   bool _isConfirmPasswordObscure = true;
 
@@ -128,18 +149,17 @@ class _RegisterFormState extends State<RegisterForm> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                // Form fields
                 TextFormField(
                   controller: _usernameController,
                   decoration: InputDecoration(
-                    labelText: 'Username',
+                    labelText: 'Nama Pengguna',
                     prefixIcon: Icon(Icons.person),
                     labelStyle: TextStyle(fontSize: 14),
                   ),
                   style: TextStyle(fontSize: 15),
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
-                      return 'Please enter your username';
+                      return 'Masukkan nama pengguna Anda';
                     }
                     return null;
                   },
@@ -155,7 +175,7 @@ class _RegisterFormState extends State<RegisterForm> {
                   style: TextStyle(fontSize: 14),
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
-                      return 'Please enter your email';
+                      return 'Masukkan email Anda';
                     }
                     return null;
                   },
@@ -165,7 +185,7 @@ class _RegisterFormState extends State<RegisterForm> {
                   controller: _passwordController,
                   obscureText: _isPasswordObscure,
                   decoration: InputDecoration(
-                    labelText: 'Password',
+                    labelText: 'Kata Sandi',
                     prefixIcon: Icon(Icons.lock),
                     labelStyle: TextStyle(fontSize: 14),
                     suffixIcon: IconButton(
@@ -185,7 +205,7 @@ class _RegisterFormState extends State<RegisterForm> {
                   style: TextStyle(fontSize: 14),
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
-                      return 'Please enter your password';
+                      return 'Masukkan kata sandi Anda';
                     }
                     return null;
                   },
@@ -195,7 +215,7 @@ class _RegisterFormState extends State<RegisterForm> {
                   controller: _confirmPasswordController,
                   obscureText: _isConfirmPasswordObscure,
                   decoration: InputDecoration(
-                    labelText: 'Konfirmasi Password',
+                    labelText: 'Konfirmasi Kata Sandi',
                     prefixIcon: Icon(Icons.lock),
                     labelStyle: TextStyle(fontSize: 14),
                     suffixIcon: IconButton(
@@ -216,14 +236,14 @@ class _RegisterFormState extends State<RegisterForm> {
                   style: TextStyle(fontSize: 14),
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
-                      return 'Please confirm your password';
+                      return 'Konfirmasi kata sandi Anda';
                     } else if (value != _passwordController.text) {
-                      return 'Passwords do not match';
+                      return 'Kata sandi tidak cocok';
                     }
                     return null;
                   },
                 ),
-                SizedBox(height: 60.0),
+                SizedBox(height: 20.0),
                 TextButton(
                   style: ButtonStyle(
                     minimumSize: MaterialStateProperty.all<Size>(Size(25, 45)),
@@ -248,10 +268,12 @@ class _RegisterFormState extends State<RegisterForm> {
                         await _auth.registerUser(
                           _usernameController.text,
                           _emailController.text,
+                          _passwordController
+                              .text, // Tambahkan kata sandi sebagai parameter
                         );
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                              content: Text('User registered successfully')),
+                              content: Text('Pengguna berhasil terdaftar')),
                         );
                         Navigator.push(
                           context,
@@ -259,7 +281,7 @@ class _RegisterFormState extends State<RegisterForm> {
                         );
                       } catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Error registering user: $e')),
+                          SnackBar(content: Text('Terjadi kesalahan: $e')),
                         );
                       }
                     }
