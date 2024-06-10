@@ -1,9 +1,24 @@
-import 'package:cari_celah/screen/home/riwayat-lokasi.dart';
 import 'package:cari_celah/widget/maps_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:webview_flutter/webview_flutter.dart'; // Import WebView dari paket webview_flutter
+import 'riwayat-lokasi.dart'; // Pastikan import file RiwayatScreen sudah benar
 
-class PetaScreen extends StatelessWidget {
+class PetaScreen extends StatefulWidget {
+  @override
+  _PetaScreenState createState() => _PetaScreenState();
+}
+
+class _PetaScreenState extends State<PetaScreen> {
+  late WebViewController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    // Inisialisasi WebViewController
+    _controller = WebViewController();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,18 +58,12 @@ class PetaScreen extends StatelessWidget {
                 fit: BoxFit.cover,
               ),
             ),
-          )
+          ),
         ],
       ),
       body: Center(
-        child: ElevatedButton(
-          child: Text('View Map'),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => MapScreen()),
-            );
-          },
+        child: WebviewPage( // Gunakan WebView dari paket webview_flutter
+          controller: _controller,
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(

@@ -1,8 +1,42 @@
-import 'package:cari_celah/screen/home/pengaturan_alat.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cari_celah/screen/home/pengaturan_alat.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
+  @override
+  _DashboardScreenState createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  String username = '';
+  String email = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserData();
+  }
+
+  Future<void> _fetchUserData() async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        DocumentSnapshot userData = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+        setState(() {
+          username = userData['username'];
+          email = userData['email'];
+        });
+      }
+    } catch (e) {
+      print('Error fetching user data: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final containerWidth = MediaQuery.of(context).size.width * 0.9;
@@ -23,7 +57,7 @@ class DashboardScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Pak Perangkat',
+              username,
               style: GoogleFonts.montserrat(
                 textStyle: TextStyle(
                   color: Colors.white,
@@ -34,7 +68,7 @@ class DashboardScreen extends StatelessWidget {
               ),
             ),
             Text(
-              'pakperangkat@gmail.com',
+              email,
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 12,
@@ -133,8 +167,8 @@ class DashboardScreen extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  top: 8, // Atur jarak dari atas
-                  right: 8, // Atur jarak dari kanan
+                  top: 8,
+                  right: 8,
                   child: IconButton(
                     icon: Icon(Icons.settings),
                     color: Colors.white,
@@ -183,8 +217,8 @@ class DashboardScreen extends StatelessWidget {
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               padding: EdgeInsets.symmetric(
-                                horizontal: 10, // Adjust horizontal padding
-                                vertical: 5, // Adjust vertical padding
+                                horizontal: 10,
+                                vertical: 5,
                               ),
                               backgroundColor: Colors.white,
                               foregroundColor: Colors.black,
@@ -196,8 +230,8 @@ class DashboardScreen extends StatelessWidget {
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               padding: EdgeInsets.symmetric(
-                                horizontal: 10, // Adjust horizontal padding
-                                vertical: 5, // Adjust vertical padding
+                                horizontal: 10,
+                                vertical: 5,
                               ),
                               foregroundColor: Colors.black,
                               backgroundColor: Colors.white,
@@ -217,10 +251,4 @@ class DashboardScreen extends StatelessWidget {
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: DashboardScreen(),
-  ));
 }

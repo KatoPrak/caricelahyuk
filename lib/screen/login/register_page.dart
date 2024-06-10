@@ -9,7 +9,7 @@ class FirebaseAuthService {
 
   Future<void> registerUser(String username, String email) async {
     try {
-      await _firestore.collection('users').doc().set({
+      await _firestore.collection('users').doc(username).set({
         'username': username,
         'email': email,
       });

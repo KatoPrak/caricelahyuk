@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -215,6 +216,84 @@ class _SetelanScreenState extends State<SetelanScreen> {
                               fontWeight: FontWeight.normal,
                             ),
                           ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: 40),
+                Text(
+                  '    AKUN',
+                  style: GoogleFonts.montserrat(
+                    textStyle: TextStyle(
+                      color: Color.fromARGB(255, 69, 118, 108),
+                      fontSize: 15,
+                      fontWeight: FontWeight.normal,
+                      letterSpacing: 0.4,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10), // Add space between buttons
+                SizedBox(
+                  height: 60, // Increased button height
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Show logout confirmation dialog
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('Logout'),
+                            content: Text('Are you sure you want to logout?'),
+                            actions: [
+                              TextButton(
+                                child: Text('Cancel'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                              TextButton(
+                                child: Text('Logout'),
+                                onPressed: () async {
+                                  Navigator.of(context).pop();
+                                  // Add your logout functionality here
+                                  await FirebaseAuth.instance.signOut();
+                                  // Navigate to the login screen
+                                  Navigator.pushReplacementNamed(
+                                      context, '/');
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color.fromARGB(
+                          255, 137, 197, 169), // background color
+                      disabledBackgroundColor: Colors.white, // foreground color
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(10), // Set border radius
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Logout',
+                          style: GoogleFonts.montserrat(
+                            textStyle: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                        ),
+                        Icon(
+                          Icons.logout,
+                          color: Colors.white,
+                          size: 30,
                         ),
                       ],
                     ),

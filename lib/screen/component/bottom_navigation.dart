@@ -28,8 +28,9 @@ class _BottomNavigationState extends State<BottomNavigation> {
   static List<Widget> _widgetOptions = <Widget>[
     DashboardScreen(),
     PetaScreen(),
+    InformasiScreen(),
     SetelanScreen(),
-    InformasiScreen()
+    
   ];
 
   void _onItemTapped(int index) {
@@ -57,16 +58,17 @@ class _BottomNavigationState extends State<BottomNavigation> {
             icon: Icon(Icons.history),
             label: 'Lokasi',
           ),
+            BottomNavigationBarItem(
+            backgroundColor: Color.fromARGB(255, 137, 197, 169),
+            icon: Icon(Icons.info),
+            label: 'Informasi',
+          ),
           BottomNavigationBarItem(
             backgroundColor: Color.fromARGB(255, 137, 197, 169),
             icon: Icon(Icons.settings),
             label: 'Pengaturan',
           ),
-          BottomNavigationBarItem(
-            backgroundColor: Color.fromARGB(255, 137, 197, 169),
-            icon: Icon(Icons.info),
-            label: 'Informasi',
-          ),
+        
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.blue,

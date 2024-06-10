@@ -1,44 +1,59 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:flutter/services.dart' show rootBundle;
-import 'dart:convert';
-import 'dart:io';
 
-class MapScreen extends StatefulWidget {
+class WebviewPage extends StatefulWidget {
+  final WebViewController controller; // Tambahkan parameter controller
+  const WebviewPage({Key? key, required this.controller}) : super(key: key);
+
   @override
-  _MapScreenState createState() => _MapScreenState();
+  State<WebviewPage> createState() => _WebviewPageState();
 }
 
-class _MapScreenState extends State<MapScreen> {
+class _WebviewPageState extends State<WebviewPage> {
   late WebViewController _controller;
 
   @override
   void initState() {
     super.initState();
-    
-    if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
+    // Inisialisasi WebViewController dari parameter yang diterima
+    _controller = widget.controller;
+    _controller
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(const Color(0x00000000))
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onProgress: (int progress) {
+            // Update loading bar.
+            print("Loading progress: $progress%");
+          },
+          onPageStarted: (String url) {
+            print("Page started loading: $url");
+          },
+          onPageFinished: (String url) {
+            print("Page finished loading: $url");
+          },
+          onWebResourceError: (WebResourceError error) {
+            print("Error loading page: $error");
+          },
+          onNavigationRequest: (NavigationRequest request) {
+            print("Navigation request to: ${request.url}");
+            if (request.url.startsWith('http://192.168.204.247/map.html')) {
+              return NavigationDecision.prevent;
+            }
+            return NavigationDecision.navigate;
+          },
+        ),
+      )
+      ..loadRequest(Uri.parse('http://192.168.204.247/map.html'));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Map'),
-          backgroundColor: Color.fromARGB(255, 137, 197, 169),
-        ),
-        body: WebView(
-          initialUrl: '', 
-          onWebViewCreated: (WebViewController webViewController) {
-            
-          },
-          javascriptMode: JavascriptMode.unrestricted,
-        ));
-  }
-
-  void _loadHtmlFromAssets() async {
-    String fileText = await rootBundle.loadString('lib/widget/map.html');
-    _controller.loadFlutterAsset(Uri.dataFromString(fileText,
-            mimeType: 'text/html', encoding: Encoding.getByName('utf-8'))
-        .toString());
+      body: WebViewWidget(
+        // Gunakan WebView dari paket webview_flutter
+        controller: _controller,
+      ),
+    );
   }
 }

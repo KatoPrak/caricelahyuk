@@ -10,6 +10,7 @@ import 'package:cari_celah/screen/splash.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cari_celah/firebase_options.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,11 +33,8 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => LoginPage(),
+        '/': (context) => RegisterForm(),
         '/home': (context) => SplashScreen(),
-      },
-      onUnknownRoute: (settings) {
-        return MaterialPageRoute(builder: (context) => RegisterPage());
       },
     );
   }

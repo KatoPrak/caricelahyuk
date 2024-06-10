@@ -106,7 +106,7 @@ class LandingPage2 extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => RegisterPage()),
+                                builder: (context) => RegisterForm()),
                           );
                         },
                         child: Text(

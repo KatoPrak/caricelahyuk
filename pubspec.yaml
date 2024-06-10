@@ -42,6 +42,9 @@ dependencies:
   image_card: ^0.0.4
   image_picker: ^1.1.1
   webview_flutter: ^4.8.0
+  crypto: ^3.0.3
+  toast: ^0.3.0
+  http: ^1.2.1
 
 dev_dependencies:
   flutter_test:
@@ -67,7 +70,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - lib/image/
-    - lib/maps/map.html
+    - lib/widget/map.html
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
