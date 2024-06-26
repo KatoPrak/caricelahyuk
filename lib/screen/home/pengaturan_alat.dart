@@ -90,9 +90,15 @@ class _PengaturanAlatScreenState extends State<PengaturanAlatScreen> {
                       if (_image != null)
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Image.file(
-                            _image!,
+                          child: Container(
                             height: 200,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15.0),
+                              image: DecorationImage(
+                                image: FileImage(_image!),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                           ),
                         ),
                     ],

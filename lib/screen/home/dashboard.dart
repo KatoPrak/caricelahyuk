@@ -4,6 +4,16 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cari_celah/screen/home/pengaturan_alat.dart';
 
+// Ekstensi untuk capitalize
+extension StringExtension on String {
+  String capitalize() {
+    if (this.isEmpty) {
+      return this;
+    }
+    return this[0].toUpperCase() + this.substring(1);
+  }
+}
+
 class DashboardScreen extends StatefulWidget {
   @override
   _DashboardScreenState createState() => _DashboardScreenState();
@@ -57,7 +67,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              username,
+              username.capitalize(),
               style: GoogleFonts.montserrat(
                 textStyle: TextStyle(
                   color: Colors.white,
@@ -68,7 +78,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
             Text(
-              email,
+              email.capitalize(),
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 12,

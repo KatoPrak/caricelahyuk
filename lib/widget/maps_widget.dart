@@ -37,14 +37,14 @@ class _WebviewPageState extends State<WebviewPage> {
           },
           onNavigationRequest: (NavigationRequest request) {
             print("Navigation request to: ${request.url}");
-            if (request.url.startsWith('http://192.168.204.247/map.html')) {
+            if (request.url.startsWith('http://10.170.6.204/map.html')) {
               return NavigationDecision.prevent;
             }
             return NavigationDecision.navigate;
           },
         ),
       )
-      ..loadRequest(Uri.parse('http://192.168.204.247/map.html'));
+      ..loadRequest(Uri.parse('http://10.170.6.204/map.html'));
   }
 
   @override

@@ -118,7 +118,7 @@ class _LoginFormState extends State<LoginForm> {
                 TextFormField(
                   controller: _emailOrUsernameController,
                   decoration: InputDecoration(
-                    labelText: 'Email/Username',
+                    labelText: 'Email',
                     prefixIcon: Icon(Icons.email),
                   ),
                   validator: (value) {
@@ -296,14 +296,14 @@ class _LoginFormState extends State<LoginForm> {
         } else {
           final email = usernameDoc.docs.first.data()['email'];
           // Sign in with email and password
-          await FirebaseAuth.instance.signInWithEmailAndPassword(
-              email: email, password: password);
+          await FirebaseAuth.instance
+              .signInWithEmailAndPassword(email: email, password: password);
         }
       } else {
         final email = userDoc.docs.first.data()['email'];
         // Sign in with email and password
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
-            email: email, password: password);
+        await FirebaseAuth.instance
+            .signInWithEmailAndPassword(email: email, password: password);
       }
 
       // If login is successful, navigate to the HomePage

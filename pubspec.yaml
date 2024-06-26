@@ -45,6 +45,8 @@ dependencies:
   crypto: ^3.0.3
   toast: ^0.3.0
   http: ^1.2.1
+  url_launcher: ^6.3.0
+  wifi_iot: ^0.3.19
 
 dev_dependencies:
   flutter_test:
