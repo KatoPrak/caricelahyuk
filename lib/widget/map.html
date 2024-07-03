@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GPS Data Map</title>
+  <title>GPS Data Map with Directions</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
   <style>
     body, html {
       margin: 0;
@@ -34,10 +35,11 @@
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
   <script>
     // Replace with your ThingSpeak Channel ID and API Read Key
-    const channelId = '2562375';
-    const readKey = 'OIY311AITHZWKGL1';
+    const channelId = '2590378';
+    const readKey = '26DEJB8HXOADW3US';
 
     // Initialize the map
     const map = L.map('map').setView([0, 0], 2);
@@ -49,6 +51,7 @@
     }).addTo(map);
 
     let marker;
+    let routingControl;
 
     // Function to fetch data from ThingSpeak
     async function fetchData() {
@@ -72,8 +75,26 @@
 
             // Add a marker to the map
             marker = L.marker([latitude, longitude]).addTo(map)
-              .bindPopup(`Latitude: ${latitude}<br>Longitude: ${longitude}`)
+              .bindPopup(`latitude: ${latitude}<br>longitude: ${longitude}`)
               .openPopup();
+
+            // Remove existing route if it exists
+            if (routingControl) {
+              map.removeControl(routingControl);
+            }
+
+            // Get the device's current location
+            map.locate({setView: false, watch: false})
+              .on('locationfound', e => {
+                // Add a route from the device's location to the marker
+                routingControl = L.Routing.control({
+                  waypoints: [
+                    L.latLng(e.latitude, e.longitude),
+                    L.latLng(latitude, longitude)
+                  ],
+                  routeWhileDragging: true
+                }).addTo(map);
+              });
           }
         }
       } catch (error) {

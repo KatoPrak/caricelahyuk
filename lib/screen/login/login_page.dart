@@ -317,6 +317,24 @@ class _LoginFormState extends State<LoginForm> {
         message = 'No user found for that email.';
       } else if (e.code == 'wrong-password') {
         message = 'Wrong password provided.';
+        // Show alert dialog for wrong password
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Login Error'),
+              content: Text(message),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
       } else {
         message = 'Error: ${e.message}';
       }

@@ -1,7 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cari_celah/configurate/network_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wifi_iot/wifi_iot.dart';
+import 'package:http/http.dart' as http; // Tambahkan http untuk dapat menggunakan http.get
 import 'package:cari_celah/screen/home/pengaturan_alat.dart';
 
 // Ekstensi untuk capitalize
@@ -15,6 +18,8 @@ extension StringExtension on String {
 }
 
 class DashboardScreen extends StatefulWidget {
+  final String baseUrl = 'http://YOUR_DEVICE_IP'; // Ganti YOUR_DEVICE_IP dengan IP perangkat Anda
+
   @override
   _DashboardScreenState createState() => _DashboardScreenState();
 }
@@ -44,6 +49,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
       }
     } catch (e) {
       print('Error fetching user data: $e');
+    }
+  }
+
+  Future<void> _connectToWiFi(String ssid, String password) async {
+    try {
+      bool isConnected = await WiFiForIoTPlugin.connect(ssid,
+          password: password, security: NetworkSecurity.WPA);
+      if (isConnected) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Terhubung ke $ssid')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal terhubung ke $ssid')),
+        );
+      }
+    } catch (e) {
+      print('Error connecting to WiFi: $e');
+    }
+  }
+
+  void _controlBuzzer(String command) async {
+    final url = Uri.parse('${widget.baseUrl}/buzzer/$command'); // Mengakses baseUrl dari objek widget
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      print('Buzzer $command successfully');
+    } else {
+      print('Failed to control buzzer');
     }
   }
 
@@ -131,7 +164,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                     ),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => AddDevicePage()),
+                    );
+                  },
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,14 +203,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Stack(
               clipBehavior: Clip.none,
               children: [
-                Container(
-                  height: MediaQuery.of(context).size.height * 0.17,
-                  width: containerWidth,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(25),
-                    image: DecorationImage(
-                      image: AssetImage('lib/image/tas.png'),
-                      fit: BoxFit.cover,
+                ClipRRect(
+                  borderRadius: BorderRadius.all(Radius.circular(25)),
+                  child: Container(
+                    height: MediaQuery.of(context).size.height * 0.17,
+                    width: containerWidth,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(25)),
+                      image: DecorationImage(
+                        image: AssetImage('lib/image/tas.png'),
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ),
@@ -233,7 +274,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               backgroundColor: Colors.white,
                               foregroundColor: Colors.black,
                             ),
-                            onPressed: () {},
+                            onPressed: () => _controlBuzzer('on'),
                             child: Text('Bunyikan'),
                           ),
                           SizedBox(width: 10),

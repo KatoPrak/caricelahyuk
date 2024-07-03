@@ -45,20 +45,39 @@ class InformasiScreen extends StatelessWidget {
           )
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 10),
-            Image.asset(
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
               'lib/image/informasi.png',
-              width: MediaQuery.of(context).size.width,
-              height: 200,
-              fit: BoxFit.fitWidth,
+              fit: BoxFit.cover,
             ),
-          ],
-        ),
+          ),
+          Positioned(
+            top: 190,
+            left: 20,
+            right: 20,
+            child: Container(
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Color.fromARGB(255, 220, 211, 184),
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Center(
+                child: Text(
+                  'www.example.com',
+                  style: GoogleFonts.montserrat(
+                    textStyle: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
