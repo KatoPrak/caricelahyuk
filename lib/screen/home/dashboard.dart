@@ -18,7 +18,7 @@ extension StringExtension on String {
 }
 
 class DashboardScreen extends StatefulWidget {
-  final String baseUrl = 'http://YOUR_DEVICE_IP'; // Ganti YOUR_DEVICE_IP dengan IP perangkat Anda
+  final String baseUrl = 'http://192.168.4.2'; // Ganti YOUR_DEVICE_IP dengan IP perangkat Anda
 
   @override
   _DashboardScreenState createState() => _DashboardScreenState();
@@ -74,9 +74,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final url = Uri.parse('${widget.baseUrl}/buzzer/$command'); // Mengakses baseUrl dari objek widget
     final response = await http.get(url);
     if (response.statusCode == 200) {
-      print('Buzzer $command successfully');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Buzzer $command berhasil')),
+      );
     } else {
-      print('Failed to control buzzer');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal mengontrol buzzer')),
+      );
     }
   }
 
